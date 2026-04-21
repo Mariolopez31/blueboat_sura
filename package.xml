@@ -12,6 +12,13 @@
   <depend>rclcpp</depend>
   <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>blueboat_bringup</exec_depend>
+  <exec_depend>blueboat_stonefish_core</exec_depend>
+  <exec_depend>blueboat_teleop</exec_depend>
+  <exec_depend>catamaran_navigator</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
