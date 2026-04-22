@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -41,6 +41,26 @@ def _load_thruster_lpf_alpha():
         return 0.25
 
 
+def _launch_stonefish_if_needed(context, lookup_csv):
+    environment = LaunchConfiguration("environment").perform(context)
+    if environment != "sim":
+        return []
+
+    stonefish_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory("blueboat_stonefish_core"),
+                "launch",
+                "blueboat_cirtesu_fastlio.launch.py"
+            )
+        ),
+        launch_arguments={
+            "lookup_csv": lookup_csv.perform(context),
+        }.items(),
+    )
+    return [stonefish_launch]
+
+
 def generate_launch_description():
     environment = LaunchConfiguration("environment")
     lookup_csv = LaunchConfiguration("lookup_csv")
@@ -64,22 +84,6 @@ def generate_launch_description():
             "lookup_csv": lookup_csv,
             "thruster_lpf_alpha": thruster_lpf_alpha,
         }.items()
-    )
-
-    stonefish_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory("blueboat_stonefish_core"),
-                "launch",
-                "blueboat_cirtesu_fastlio.launch.py"
-            )
-        ),
-        launch_arguments={
-            "lookup_csv": lookup_csv,
-        }.items(),
-        condition=IfCondition(
-            PythonExpression(["'", environment, "' == 'sim'"])
-        )
     )
 
     navigator_common_params = [{
@@ -162,7 +166,9 @@ def generate_launch_description():
             description="Joystick device index passed to joy_node"
         ),
         bringup_launch,
-        stonefish_launch,
+        OpaqueFunction(function=_launch_stonefish_if_needed, kwargs={
+            "lookup_csv": lookup_csv,
+        }),
         navigator_sim_node,
         navigator_real_node,
         teleop_launch,
