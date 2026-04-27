@@ -87,10 +87,20 @@ def generate_launch_description():
     )
 
     navigator_common_params = [{
-        "odom_topic": "/catamaran/odometry",
         "navigator_topic": "/navigator_msg",
-        "odom_twist_in_body_frame": False,
         "linear_lpf_alpha": navigator_linear_lpf_alpha,
+    }]
+
+    navigator_sim_params = navigator_common_params + [{
+        "odom_topic": "/blueboat/navigator/odometry",
+        "odom_twist_in_body_frame": True,
+        "odom_invert_angular_z": False,
+    }]
+
+    navigator_real_params = navigator_common_params + [{
+        "odom_topic": "/catamaran/odometry",
+        "odom_twist_in_body_frame": False,
+        "odom_invert_angular_z": True,
     }]
 
     navigator_sim_node = Node(
@@ -98,7 +108,27 @@ def generate_launch_description():
         executable="navigator_sim",
         name="navigator_sim",
         output="screen",
-        parameters=navigator_common_params,
+        parameters=navigator_sim_params,
+        condition=IfCondition(
+            PythonExpression(["'", environment, "' == 'sim'"])
+        )
+    )
+
+    tf_debug_poses_node = Node(
+        package="blueboat_stonefish_core",
+        executable="tf_debug_poses.py",
+        name="tf_debug_poses",
+        output="screen",
+        parameters=[{
+            "world_frame": "world_ned",
+            "map_frame": "map",
+            "base_link_enu_frame": "blueboat/base_link_enu",
+            "base_link_frame": "blueboat/base_link",
+            "base_link_enu_topic": "/debug/base_link_enu_pose",
+            "map_base_link_enu_topic": "/debug/map_base_link_enu_pose",
+            "base_link_topic": "/debug/base_link_pose",
+            "publish_rate_hz": 10.0,
+        }],
         condition=IfCondition(
             PythonExpression(["'", environment, "' == 'sim'"])
         )
@@ -109,7 +139,7 @@ def generate_launch_description():
         executable="navigator_real",
         name="navigator_real",
         output="screen",
-        parameters=navigator_common_params,
+        parameters=navigator_real_params,
         condition=IfCondition(
             PythonExpression(["'", environment, "' == 'real'"])
         )
@@ -170,6 +200,7 @@ def generate_launch_description():
             "lookup_csv": lookup_csv,
         }),
         navigator_sim_node,
+        tf_debug_poses_node,
         navigator_real_node,
         teleop_launch,
     ])
