@@ -102,7 +102,7 @@ def generate_launch_description():
 
     navigator_real_params = navigator_common_params + [{
         "odom_topic": "/catamaran/odometry",
-        "odom_twist_in_body_frame": False,
+        "odom_twist_in_body_frame": True,
         "odom_invert_angular_z": True,
     }]
 
