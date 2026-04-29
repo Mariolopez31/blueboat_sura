@@ -92,9 +92,12 @@ def generate_launch_description():
     }]
 
     navigator_sim_params = navigator_common_params + [{
-        "odom_topic": "/blueboat/navigator/odometry",
+        "odom_topic": "/catamaran/odometry",
         "odom_twist_in_body_frame": True,
         "odom_invert_angular_z": False,
+        "twist_odom_topic": "/blueboat/navigator/odometry",
+        "twist_odom_twist_in_body_frame": True,
+        "twist_odom_invert_angular_z": False,
     }]
 
     navigator_real_params = navigator_common_params + [{
