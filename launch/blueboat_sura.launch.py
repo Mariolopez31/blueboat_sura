@@ -65,9 +65,11 @@ def generate_launch_description():
     environment = LaunchConfiguration("environment")
     lookup_csv = LaunchConfiguration("lookup_csv")
     thruster_lpf_alpha = LaunchConfiguration("thruster_lpf_alpha")
+    enable_gps = LaunchConfiguration("enable_gps")
     use_teleop = LaunchConfiguration("use_teleop")
     teleop_config_file = LaunchConfiguration("teleop_config_file")
     joy_device_id = LaunchConfiguration("joy_device_id")
+
     navigator_linear_lpf_alpha = _load_navigator_bridge_alpha()
     thruster_lpf_alpha_default = _load_thruster_lpf_alpha()
 
@@ -83,6 +85,7 @@ def generate_launch_description():
             "environment": environment,
             "lookup_csv": lookup_csv,
             "thruster_lpf_alpha": thruster_lpf_alpha,
+            "enable_gps": enable_gps,
         }.items()
     )
 
@@ -180,6 +183,11 @@ def generate_launch_description():
             description="Low-pass alpha for thruster commands in ThrustersSystem"
         ),
         DeclareLaunchArgument(
+            "enable_gps",
+            default_value="true",
+            description="Launch GPS node through blueboat_bringup"
+        ),
+        DeclareLaunchArgument(
             "use_teleop",
             default_value="false",
             description="Launch joy_node and blueboat_teleop for gamepad control"
@@ -198,10 +206,13 @@ def generate_launch_description():
             default_value="0",
             description="Joystick device index passed to joy_node"
         ),
+
         bringup_launch,
+
         OpaqueFunction(function=_launch_stonefish_if_needed, kwargs={
             "lookup_csv": lookup_csv,
         }),
+
         navigator_sim_node,
         tf_debug_poses_node,
         navigator_real_node,
