@@ -65,7 +65,10 @@ def generate_launch_description():
     environment = LaunchConfiguration("environment")
     lookup_csv = LaunchConfiguration("lookup_csv")
     thruster_lpf_alpha = LaunchConfiguration("thruster_lpf_alpha")
+
     enable_gps = LaunchConfiguration("enable_gps")
+    enable_gps_anchor = LaunchConfiguration("enable_gps_anchor")
+
     use_teleop = LaunchConfiguration("use_teleop")
     teleop_config_file = LaunchConfiguration("teleop_config_file")
     joy_device_id = LaunchConfiguration("joy_device_id")
@@ -86,6 +89,7 @@ def generate_launch_description():
             "lookup_csv": lookup_csv,
             "thruster_lpf_alpha": thruster_lpf_alpha,
             "enable_gps": enable_gps,
+            "enable_gps_anchor": enable_gps_anchor,
         }.items()
     )
 
@@ -186,6 +190,11 @@ def generate_launch_description():
             "enable_gps",
             default_value="true",
             description="Launch GPS node through blueboat_bringup"
+        ),
+        DeclareLaunchArgument(
+            "enable_gps_anchor",
+            default_value="false",
+            description="Launch GPS anchor node through blueboat_bringup"
         ),
         DeclareLaunchArgument(
             "use_teleop",
