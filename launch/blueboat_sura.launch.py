@@ -68,6 +68,7 @@ def generate_launch_description():
 
     enable_gps = LaunchConfiguration("enable_gps")
     enable_gps_anchor = LaunchConfiguration("enable_gps_anchor")
+    enable_world_enu_identity_tf = LaunchConfiguration("enable_world_enu_identity_tf")
 
     use_teleop = LaunchConfiguration("use_teleop")
     teleop_config_file = LaunchConfiguration("teleop_config_file")
@@ -75,6 +76,11 @@ def generate_launch_description():
 
     navigator_linear_lpf_alpha = _load_navigator_bridge_alpha()
     thruster_lpf_alpha_default = _load_thruster_lpf_alpha()
+    default_lookup_csv = os.path.join(
+        get_package_share_directory("sura_hardware_interface"),
+        "config",
+        "m200_lookup.csv"
+    )
 
     bringup_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -90,6 +96,7 @@ def generate_launch_description():
             "thruster_lpf_alpha": thruster_lpf_alpha,
             "enable_gps": enable_gps,
             "enable_gps_anchor": enable_gps_anchor,
+            "enable_world_enu_identity_tf": enable_world_enu_identity_tf,
         }.items()
     )
 
@@ -155,6 +162,18 @@ def generate_launch_description():
         )
     )
 
+    position_setpoint_adapter = Node(
+        package="catamaran_navigator",
+        executable="position_setpoint_adapter",
+        name="position_setpoint_adapter",
+        output="screen",
+        parameters=[{
+            "input_topic": "/body_position/setpoint_world",
+            "output_topic": "/body_position/setpoint",
+            "target_frame": "map",
+        }],
+    )
+
     teleop_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
@@ -178,7 +197,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "lookup_csv",
-            default_value="",
+            default_value=default_lookup_csv,
             description="Path to thruster lookup CSV"
         ),
         DeclareLaunchArgument(
@@ -195,6 +214,11 @@ def generate_launch_description():
             "enable_gps_anchor",
             default_value="false",
             description="Launch GPS anchor node through blueboat_bringup"
+        ),
+        DeclareLaunchArgument(
+            "enable_world_enu_identity_tf",
+            default_value="true",
+            description="Publish identity TF world_enu->map when GPS anchor is not active"
         ),
         DeclareLaunchArgument(
             "use_teleop",
@@ -225,5 +249,6 @@ def generate_launch_description():
         navigator_sim_node,
         tf_debug_poses_node,
         navigator_real_node,
+        position_setpoint_adapter,
         teleop_launch,
     ])
