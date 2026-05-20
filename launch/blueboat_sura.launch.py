@@ -68,6 +68,8 @@ def generate_launch_description():
 
     enable_gps = LaunchConfiguration("enable_gps")
     enable_gps_anchor = LaunchConfiguration("enable_gps_anchor")
+    enable_diagnostics = LaunchConfiguration("enable_diagnostics")
+    enable_status_light = LaunchConfiguration("enable_status_light")
     enable_world_enu_identity_tf = LaunchConfiguration("enable_world_enu_identity_tf")
 
     use_teleop = LaunchConfiguration("use_teleop")
@@ -96,6 +98,8 @@ def generate_launch_description():
             "thruster_lpf_alpha": thruster_lpf_alpha,
             "enable_gps": enable_gps,
             "enable_gps_anchor": enable_gps_anchor,
+            "enable_diagnostics": enable_diagnostics,
+            "enable_status_light": enable_status_light,
             "enable_world_enu_identity_tf": enable_world_enu_identity_tf,
         }.items()
     )
@@ -214,6 +218,16 @@ def generate_launch_description():
             "enable_gps_anchor",
             default_value="false",
             description="Launch GPS anchor node through blueboat_bringup"
+        ),
+        DeclareLaunchArgument(
+            "enable_diagnostics",
+            default_value="true",
+            description="Launch diagnostics through blueboat_bringup"
+        ),
+        DeclareLaunchArgument(
+            "enable_status_light",
+            default_value="true",
+            description="Launch status light through blueboat_bringup"
         ),
         DeclareLaunchArgument(
             "enable_world_enu_identity_tf",
